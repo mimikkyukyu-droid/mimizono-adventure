@@ -194,21 +194,18 @@ body {
 }
 
 .boss-hud {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
+  width: min(100vw - 16px, 960px);
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 4px;
-  background: rgba(30, 0, 30, 0.78);
+  gap: 10px;
+  background: rgba(30, 0, 30, 0.88);
   border: 2px solid #d070b0;
-  border-radius: 12px;
-  padding: 6px 14px 8px;
-  z-index: 3;
+  border-radius: 10px;
+  padding: 6px 14px;
   pointer-events: none;
-  white-space: nowrap;
+  flex-shrink: 0;
+  margin-bottom: 4px;
 }
 
 .boss-hud.hidden {
@@ -219,10 +216,12 @@ body {
   font-size: clamp(0.65rem, 1.8vw, 0.85rem);
   font-weight: bold;
   color: #ffd8f8;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .boss-hud-bar {
-  width: clamp(120px, 20vw, 200px);
+  flex: 1;
   height: 10px;
   background: #400030;
   border-radius: 5px;
@@ -280,7 +279,7 @@ body {
   }
 
   .game-shell {
-    max-height: calc(100vh - 120px);
+    max-height: calc(100vh - 162px);
     border-radius: 20px 20px 0 0;
   }
 

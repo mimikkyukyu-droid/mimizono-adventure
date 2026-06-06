@@ -8,6 +8,13 @@
 </head>
 <body>
   <div id="app">
+    <div id="bossHud" class="boss-hud hidden" aria-hidden="true">
+      <span class="boss-hud-name">ねむけ大王</span>
+      <div class="boss-hud-bar">
+        <div id="bossHpFill" class="boss-hud-fill"></div>
+      </div>
+    </div>
+
     <div class="game-shell">
       <canvas id="gameCanvas" width="960" height="540"></canvas>
 
@@ -22,13 +29,6 @@
         <div class="hud-right">
           <span class="hud-label">ライフ</span>
           <span id="livesDisplay" class="hud-value lives">♥♥♥</span>
-        </div>
-      </div>
-
-      <div id="bossHud" class="boss-hud hidden" aria-hidden="true">
-        <span class="boss-hud-name">ねむけ大王</span>
-        <div class="boss-hud-bar">
-          <div id="bossHpFill" class="boss-hud-fill"></div>
         </div>
       </div>
 
