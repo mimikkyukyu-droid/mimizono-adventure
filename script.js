@@ -50,6 +50,7 @@
   let bgmStage            = 1;
   let boss                = null;
   let bossProjectiles     = [];
+  let clearOverlayTimer   = null;
 
   const player = {
     x: 80, y: 0, w: 44, h: 52,
@@ -488,6 +489,7 @@
   }
 
   function advanceToNextStage() {
+    if (clearOverlayTimer) { clearTimeout(clearOverlayTimer); clearOverlayTimer = null; }
     const nextStage = currentStage + 1;
     stopBGM();
     const savedScore = score; const savedLives = lives;
@@ -521,6 +523,7 @@
   }
 
   function startGame() {
+    if (clearOverlayTimer) { clearTimeout(clearOverlayTimer); clearOverlayTimer = null; }
     ensureAudio();
     currentStage = 1;
     resetGame();
@@ -608,6 +611,7 @@
   }
 
   function triggerGameOver() {
+    if (clearOverlayTimer) { clearTimeout(clearOverlayTimer); clearOverlayTimer = null; }
     state = GameState.GAMEOVER; gameOverTimer = 0; gameOverShowOverlay = false;
     invincibleUntil = 0; screenShake = 28;
     player.vx = 0; player.vy = -9; player.onGround = false;
@@ -705,7 +709,7 @@
     }
     overlayTitle.textContent = "全ステージクリア！！";
     overlayText.textContent  = `スコア：${score} — もう一度遊ぶ？`;
-    setTimeout(() => overlay.classList.remove("hidden"), 2800);
+    clearOverlayTimer = setTimeout(() => { clearOverlayTimer = null; overlay.classList.remove("hidden"); }, 2800);
   }
 
   function fireBossAttack() {
@@ -898,7 +902,7 @@
         overlayTitle.textContent = "ステージ2クリア！";
         overlayText.textContent  = "スペースまたはタップでステージ3へ！";
       }
-      setTimeout(() => overlay.classList.remove("hidden"), 2800);
+      clearOverlayTimer = setTimeout(() => { clearOverlayTimer = null; overlay.classList.remove("hidden"); }, 2800);
     }
   }
 
