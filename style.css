@@ -155,39 +155,79 @@ body {
 }
 
 .touch-controls {
-  position: fixed;
-  left: -9999px;
-  top: -9999px;
-  pointer-events: auto;
+  display: none;
+  width: min(100vw - 16px, 960px);
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 0 0 20px 20px;
+  box-shadow: 0 8px 20px rgba(180, 140, 200, 0.25);
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
 }
 
-.touch-left,
-.touch-right {
-  position: absolute;
+.touch-left {
   display: flex;
   gap: 10px;
+  align-items: center;
+}
+
+.touch-right {
+  display: flex;
+  align-items: center;
 }
 
 .touch-btn {
-  width: 64px;
-  height: 64px;
+  width: clamp(54px, 13vw, 66px);
+  height: clamp(54px, 13vw, 66px);
   border: none;
   border-radius: 50%;
-  font-size: 1.4rem;
+  font-size: clamp(1.1rem, 4vw, 1.4rem);
   font-weight: bold;
   color: #fff;
   background: linear-gradient(145deg, #ffb8d0, #f080a8);
+  box-shadow: 0 4px 0 #d06088, 0 6px 12px rgba(200, 100, 140, 0.3);
   cursor: pointer;
   user-select: none;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+.touch-btn:active,
+.touch-btn.pressed {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #d06088, 0 3px 8px rgba(200, 100, 140, 0.3);
 }
 
 .jump-btn {
-  width: 80px;
-  height: 80px;
+  width: clamp(64px, 16vw, 76px);
+  height: clamp(64px, 16vw, 76px);
   background: linear-gradient(145deg, #a8e0f8, #70c0e8);
+  box-shadow: 0 4px 0 #50a0c8, 0 6px 12px rgba(100, 170, 220, 0.3);
+  font-size: clamp(1.3rem, 4.5vw, 1.6rem);
+}
+
+.jump-btn:active,
+.jump-btn.pressed {
+  box-shadow: 0 1px 0 #50a0c8, 0 3px 8px rgba(100, 170, 220, 0.3);
 }
 
 @media (hover: none) and (pointer: coarse) {
+  #app {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 8px 8px 0;
+  }
+
+  .game-shell {
+    max-height: calc(100vh - 110px);
+    border-radius: 20px 20px 0 0;
+  }
+
+  .touch-controls {
+    display: flex;
+  }
+
   .pc-only {
     display: none;
   }
