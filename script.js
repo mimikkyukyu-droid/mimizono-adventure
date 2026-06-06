@@ -1,10 +1,10 @@
 (() => {
   "use strict";
 
-  const canvas      = document.getElementById("gameCanvas");
-  const ctx         = canvas.getContext("2d");
-  const overlay     = document.getElementById("overlay");
-  const overlayText = document.getElementById("overlayText");
+  const canvas       = document.getElementById("gameCanvas");
+  const ctx          = canvas.getContext("2d");
+  const overlay      = document.getElementById("overlay");
+  const overlayText  = document.getElementById("overlayText");
   const overlayTitle = document.getElementById("overlayTitle");
   const scoreDisplay = document.getElementById("scoreDisplay");
   const livesDisplay = document.getElementById("livesDisplay");
@@ -26,30 +26,30 @@
   const keys  = { left: false, right: false, jump: false, jumpPressed: false, attackPressed: false };
   const touch = { left: false, right: false, jump: false, jumpPressed: false, attack: false, attackPressed: false };
 
-  let state            = GameState.TITLE;
-  let score            = 0;
-  let lives            = 3;
-  let cameraX          = 0;
-  let time             = 0;
-  let invincibleUntil  = 0;
-  let goalReached      = false;
-  let goalTimer        = 0;
-  let gameOverTimer    = 0;
-  let particles        = [];
-  let playerSprite     = null;
-  let audioCtx         = null;
-  let bgmGain          = null;
-  let bgmPlaying       = false;
-  let bgmStep          = 0;
-  let bgmTimer         = null;
-  let screenShake      = 0;
+  let state               = GameState.TITLE;
+  let score               = 0;
+  let lives               = 3;
+  let cameraX             = 0;
+  let time                = 0;
+  let invincibleUntil     = 0;
+  let goalReached         = false;
+  let goalTimer           = 0;
+  let gameOverTimer       = 0;
+  let particles           = [];
+  let playerSprite        = null;
+  let audioCtx            = null;
+  let bgmGain             = null;
+  let bgmPlaying          = false;
+  let bgmStep             = 0;
+  let bgmTimer            = null;
+  let screenShake         = 0;
   let gameOverShowOverlay = false;
-  let clearStars       = [];
-  let currentStage     = 1;
-  let worldW           = 3600;
-  let bgmStage         = 1;
-  let boss             = null;
-  let bossProjectiles  = [];
+  let clearStars          = [];
+  let currentStage        = 1;
+  let worldW              = 3600;
+  let bgmStage            = 1;
+  let boss                = null;
+  let bossProjectiles     = [];
 
   const player = {
     x: 80, y: 0, w: 44, h: 52,
@@ -59,7 +59,7 @@
 
   const playerAttack = { active: false, timer: 0, duration: 14, cooldown: 0, cooldownMax: 24 };
 
-  // ── Stage 1 data ─────────────────────────────────────────────────
+  // ── Stage 1 ───────────────────────────────────────────────────────
   const STAGE1_WORLD_W = 3600;
   const STAGE1_NAME    = "ステージ1：パステル草原";
 
@@ -118,7 +118,7 @@
 
   const STAGE1_GOAL = { x: STAGE1_WORLD_W - 120, y: GROUND_Y - 120, w: 60, h: 120 };
 
-  // ── Stage 2 data ─────────────────────────────────────────────────
+  // ── Stage 2 ───────────────────────────────────────────────────────
   const STAGE2_WORLD_W = 4000;
   const STAGE2_NAME    = "ステージ2：おかしの森";
 
@@ -194,7 +194,89 @@
 
   const STAGE2_GOAL = { x: STAGE2_WORLD_W - 120, y: GROUND_Y - 120, w: 60, h: 120 };
 
-  // Active data (reassigned by loadStage)
+  // ── Stage 3 ───────────────────────────────────────────────────────
+  const STAGE3_WORLD_W = 3800;
+  const STAGE3_NAME    = "ステージ3：ねむけ城";
+
+  const STAGE3_PLATFORMS = [
+    { x: 0,    y: GROUND_Y, w: 350, h: 80, type: "ground" },
+    { x: 500,  y: GROUND_Y, w: 200, h: 80, type: "ground" },
+    { x: 800,  y: GROUND_Y, w: 170, h: 80, type: "ground" },
+    { x: 1080, y: GROUND_Y, w: 160, h: 80, type: "ground" },
+    { x: 1380, y: GROUND_Y, w: 150, h: 80, type: "ground" },
+    { x: 1680, y: GROUND_Y, w: 160, h: 80, type: "ground" },
+    { x: 1980, y: GROUND_Y, w: 150, h: 80, type: "ground" },
+    { x: 2280, y: GROUND_Y, w: 160, h: 80, type: "ground" },
+    { x: 2600, y: GROUND_Y, w: 150, h: 80, type: "ground" },
+    { x: 2900, y: GROUND_Y, w: 160, h: 80, type: "ground" },
+    { x: 3200, y: GROUND_Y, w: 600, h: 80, type: "ground" },
+    { x: 260,  y: 360, w: 80, h: 24, type: "platform" },
+    { x: 380,  y: 290, w: 70, h: 24, type: "platform" },
+    { x: 570,  y: 340, w: 80, h: 24, type: "platform" },
+    { x: 680,  y: 260, w: 70, h: 24, type: "platform" },
+    { x: 860,  y: 320, w: 75, h: 24, type: "platform" },
+    { x: 960,  y: 240, w: 70, h: 24, type: "platform" },
+    { x: 1140, y: 315, w: 80, h: 24, type: "platform" },
+    { x: 1240, y: 235, w: 70, h: 24, type: "platform" },
+    { x: 1440, y: 305, w: 75, h: 24, type: "platform" },
+    { x: 1560, y: 220, w: 70, h: 24, type: "platform" },
+    { x: 1650, y: 150, w: 65, h: 24, type: "platform" },
+    { x: 1750, y: 310, w: 75, h: 24, type: "platform" },
+    { x: 1860, y: 230, w: 70, h: 24, type: "platform" },
+    { x: 2050, y: 300, w: 80, h: 24, type: "platform" },
+    { x: 2160, y: 215, w: 70, h: 24, type: "platform" },
+    { x: 2260, y: 145, w: 65, h: 24, type: "platform" },
+    { x: 2360, y: 290, w: 80, h: 24, type: "platform" },
+    { x: 2480, y: 215, w: 70, h: 24, type: "platform" },
+    { x: 2660, y: 300, w: 75, h: 24, type: "platform" },
+    { x: 2780, y: 220, w: 70, h: 24, type: "platform" },
+    { x: 2960, y: 290, w: 80, h: 24, type: "platform" },
+    { x: 3080, y: 200, w: 70, h: 24, type: "platform" },
+    { x: 3170, y: 130, w: 65, h: 24, type: "platform" },
+  ];
+
+  const STAGE3_STARS_TPL = [
+    { x: 295,  y: 330,           r: 12 },
+    { x: 415,  y: 260,           r: 12 },
+    { x: 605,  y: 310,           r: 12 },
+    { x: 715,  y: 230,           r: 12 },
+    { x: 895,  y: 290,           r: 12 },
+    { x: 995,  y: 210,           r: 12 },
+    { x: 1175, y: 285,           r: 12 },
+    { x: 1275, y: 205,           r: 12 },
+    { x: 1595, y: 190,           r: 12 },
+    { x: 1685, y: 120,           r: 12 },
+    { x: 1895, y: 200,           r: 12 },
+    { x: 2195, y: 185,           r: 12 },
+    { x: 2295, y: 115,           r: 12 },
+    { x: 2515, y: 185,           r: 12 },
+    { x: 2815, y: 190,           r: 12 },
+    { x: 3115, y: 170,           r: 12 },
+    { x: 3205, y: 100,           r: 12 },
+    { x: 2400, y: GROUND_Y - 30, r: 12 },
+  ];
+
+  const STAGE3_ENEMIES_TPL = [
+    { type: "sleepy",       x: 400,  y: 0, w: 38, h: 34, speed: 2.0, dir:  1 },
+    { type: "dishes",       x: 560,  y: 0, w: 40, h: 36, speed: 1.8, dir: -1 },
+    { type: "constipation", x: 870,  y: 0, w: 36, h: 38, speed: 1.7, dir:  1 },
+    { type: "sleepy",       x: 390,  y: 0, w: 38, h: 34, speed: 1.9, dir: -1, platformOnly: true },
+    { type: "dishes",       x: 690,  y: 0, w: 40, h: 36, speed: 1.8, dir:  1, platformOnly: true },
+    { type: "constipation", x: 1100, y: 0, w: 36, h: 38, speed: 1.8, dir: -1 },
+    { type: "sleepy",       x: 1450, y: 0, w: 38, h: 34, speed: 2.0, dir:  1 },
+    { type: "dishes",       x: 1700, y: 0, w: 40, h: 36, speed: 1.9, dir: -1 },
+    { type: "constipation", x: 1250, y: 0, w: 36, h: 38, speed: 1.8, dir:  1, platformOnly: true },
+    { type: "sleepy",       x: 2000, y: 0, w: 38, h: 34, speed: 2.1, dir: -1 },
+    { type: "dishes",       x: 2320, y: 0, w: 40, h: 36, speed: 1.9, dir:  1 },
+    { type: "constipation", x: 2170, y: 0, w: 36, h: 38, speed: 1.8, dir: -1, platformOnly: true },
+    { type: "sleepy",       x: 2650, y: 0, w: 38, h: 34, speed: 2.0, dir:  1 },
+    { type: "dishes",       x: 2950, y: 0, w: 40, h: 36, speed: 2.0, dir: -1 },
+    { type: "constipation", x: 2800, y: 0, w: 36, h: 38, speed: 1.9, dir:  1, platformOnly: true },
+    { type: "sleepy",       x: 3300, y: 0, w: 38, h: 34, speed: 2.2, dir: -1 },
+    { type: "dishes",       x: 3560, y: 0, w: 40, h: 36, speed: 2.1, dir:  1 },
+  ];
+
+  // Active data
   let platforms = [];
   let stars     = [];
   let enemies   = [];
@@ -247,10 +329,17 @@
     [392, 349, 311, 262, 196].forEach((v, i) => setTimeout(() => playTone(v, 0.32, "square", 0.09), i * 200));
   }
 
+  // Stage 1 BGM: C major, BPM 132
   const BGM_MELODY_1 = [523,0,587,523,659,0,587,0,698,659,587,523,659,587,523,0,392,440,494,523,494,440,392,0,523,587,659,698,784,698,659,0];
   const BGM_BASS_1   = [131,0,131,147,165,0,165,147,131,0,131,147,165,0,131,0,98,0,98,110,123,0,123,110,131,0,147,165,131,0,98,0];
+
+  // Stage 2 BGM: G major, BPM 148
   const BGM_MELODY_2 = [784,0,880,784,1047,0,880,0,784,880,1047,880,784,659,698,0,659,0,784,659,784,0,698,0,880,784,698,659,784,0,880,0];
   const BGM_BASS_2   = [196,0,196,220,262,0,262,220,196,0,196,220,262,0,196,0,165,0,165,196,220,0,220,196,196,0,220,262,220,196,165,0];
+
+  // Stage 3 BGM: A minor, BPM 168 (dark & tense)
+  const BGM_MELODY_3 = [440,0,494,440,523,0,494,0,440,392,440,494,523,494,440,0,349,392,440,392,349,0,330,0,294,330,349,392,440,392,349,0];
+  const BGM_BASS_3   = [110,0,110,123,131,0,131,123,110,0,98,110,131,123,110,0,87,98,110,98,87,0,82,0,73,82,87,98,110,98,87,0];
 
   function playBGMNote(freq, duration, type, volume, startTime) {
     if (!freq || !audioCtx || !bgmGain) return;
@@ -267,15 +356,15 @@
 
   function scheduleBGMStep() {
     if (!bgmPlaying || !audioCtx || state !== GameState.PLAYING) return;
-    const melody = bgmStage === 2 ? BGM_MELODY_2 : BGM_MELODY_1;
-    const bass   = bgmStage === 2 ? BGM_BASS_2   : BGM_BASS_1;
-    const bpm    = bgmStage === 2 ? 148 : 132;
+    const melody = bgmStage === 3 ? BGM_MELODY_3 : bgmStage === 2 ? BGM_MELODY_2 : BGM_MELODY_1;
+    const bass   = bgmStage === 3 ? BGM_BASS_3   : bgmStage === 2 ? BGM_BASS_2   : BGM_BASS_1;
+    const bpm    = bgmStage === 3 ? 168 : bgmStage === 2 ? 148 : 132;
     const step   = bgmStep % melody.length;
     const beat   = 60 / bpm / 2;
     const now    = audioCtx.currentTime;
     if (melody[step]) playBGMNote(melody[step], beat * 0.9,  "square",   0.045, now);
     if (bass[step])   playBGMNote(bass[step],   beat * 0.95, "triangle", 0.06,  now);
-    if (step % 4 === 0) playBGMNote(80, 0.04, "square", 0.03, now);
+    if (step % 4 === 0) playBGMNote(bgmStage === 3 ? 55 : 80, 0.04, "square", 0.03, now);
     bgmStep++;
     bgmTimer = setTimeout(scheduleBGMStep, beat * 1000);
   }
@@ -313,15 +402,16 @@
 
   // ── Boss ──────────────────────────────────────────────────────────
   function createBoss() {
+    const arenaStart = STAGE3_WORLD_W - 580;
     return {
-      x: STAGE2_WORLD_W - 360,
+      x: arenaStart + 200,
       y: GROUND_Y - 90,
       w: 80, h: 90,
       hp: 8, maxHp: 8,
       alive: true,
       dir: -1,
-      minX: STAGE2_WORLD_W - 460,
-      maxX: STAGE2_WORLD_W - 140,
+      minX: arenaStart + 30,
+      maxX: arenaStart + 500,
       attackTimer: 90,
       hurtTimer: 0,
     };
@@ -338,16 +428,20 @@
   // ── Stage management ──────────────────────────────────────────────
   function loadStage(n) {
     currentStage = n;
-    const s2    = n === 2;
-    worldW      = s2 ? STAGE2_WORLD_W : STAGE1_WORLD_W;
-    platforms   = s2 ? STAGE2_PLATFORMS : STAGE1_PLATFORMS;
-    stars       = (s2 ? STAGE2_STARS_TPL : STAGE1_STARS_TPL).map(s => ({ ...s, taken: false }));
-    enemies     = (s2 ? STAGE2_ENEMIES_TPL : STAGE1_ENEMIES_TPL).map(e => ({ ...e, alive: true, y: 0 }));
-    goal        = s2 ? { ...STAGE2_GOAL } : { ...STAGE1_GOAL };
-    boss        = s2 ? createBoss() : null;
+    let stg;
+    if (n === 3)      stg = { platforms: STAGE3_PLATFORMS, stars: STAGE3_STARS_TPL, enemies: STAGE3_ENEMIES_TPL, w: STAGE3_WORLD_W, name: STAGE3_NAME };
+    else if (n === 2) stg = { platforms: STAGE2_PLATFORMS, stars: STAGE2_STARS_TPL, enemies: STAGE2_ENEMIES_TPL, w: STAGE2_WORLD_W, name: STAGE2_NAME };
+    else              stg = { platforms: STAGE1_PLATFORMS, stars: STAGE1_STARS_TPL, enemies: STAGE1_ENEMIES_TPL, w: STAGE1_WORLD_W, name: STAGE1_NAME };
+
+    worldW    = stg.w;
+    platforms = stg.platforms;
+    stars     = stg.stars.map(s => ({ ...s, taken: false }));
+    enemies   = stg.enemies.map(e => ({ ...e, alive: true, y: 0 }));
+    goal      = n === 1 ? { ...STAGE1_GOAL } : n === 2 ? { ...STAGE2_GOAL } : { x: -9999, y: -9999, w: 0, h: 0 };
+    boss      = n === 3 ? createBoss() : null;
     bossProjectiles = [];
     playerAttack.active = false; playerAttack.timer = 0; playerAttack.cooldown = 0;
-    stageNameEl.textContent = s2 ? STAGE2_NAME : STAGE1_NAME;
+    stageNameEl.textContent = stg.name;
     placeEnemiesOnGround();
     updateBossHUD();
   }
@@ -366,6 +460,7 @@
   }
 
   function advanceToNextStage() {
+    const nextStage = currentStage + 1;
     stopBGM();
     const savedScore = score; const savedLives = lives;
     cameraX = 0; time = 0; invincibleUntil = 0; goalReached = false;
@@ -374,13 +469,13 @@
     player.x = 80; player.vx = 0; player.vy = 0;
     player.onGround = true; player.jumpsLeft = 2; player.facing = 1;
     player.anim = 0; player.squash = 1; player.stretch = 1;
-    loadStage(2);
+    loadStage(nextStage);
     player.y = GROUND_Y - player.h;
     score = savedScore; lives = savedLives;
     state = GameState.PLAYING;
     overlay.classList.add("hidden");
     updateHUD();
-    startBGM(2);
+    startBGM(nextStage);
   }
 
   function handleStartPress() {
@@ -388,7 +483,7 @@
     if (state === GameState.TITLE || state === GameState.GAMEOVER) {
       startGame();
     } else if (state === GameState.CLEAR) {
-      currentStage === 1 ? advanceToNextStage() : startGame();
+      currentStage < 3 ? advanceToNextStage() : startGame();
     }
   }
 
@@ -605,18 +700,14 @@
       if (playerAttack.timer === 0) playerAttack.active = false;
     }
     if (playerAttack.cooldown > 0) playerAttack.cooldown--;
-
     if (!playerAttack.active) return;
 
     const ab = getPlayerAttackBox();
 
-    // Hit boss
     if (boss && boss.alive && boss.hurtTimer <= 0) {
-      const bossBox = { x: boss.x, y: boss.y, w: boss.w, h: boss.h };
-      if (rectsOverlap(ab, bossBox)) hitBoss();
+      if (rectsOverlap(ab, { x: boss.x, y: boss.y, w: boss.w, h: boss.h })) hitBoss();
     }
 
-    // Hit enemies
     enemies.forEach((e) => {
       if (!e.alive) return;
       if (rectsOverlap(ab, { x: e.x, y: e.y, w: e.w, h: e.h })) {
@@ -747,12 +838,17 @@
   }
 
   function updateGoal() {
-    if (goalReached || currentStage === 2) return;
+    if (goalReached || currentStage === 3) return;
     if (rectsOverlap(player, goal)) {
       goalReached = true; goalTimer = 0; state = GameState.CLEAR;
       stopBGM(); playGoalSound(); spawnGoalEffect();
-      overlayTitle.textContent = "ステージ1クリア！";
-      overlayText.textContent  = "スペースまたはタップでステージ2へ！";
+      if (currentStage === 1) {
+        overlayTitle.textContent = "ステージ1クリア！";
+        overlayText.textContent  = "スペースまたはタップでステージ2へ！";
+      } else {
+        overlayTitle.textContent = "ステージ2クリア！";
+        overlayText.textContent  = "スペースまたはタップでステージ3へ！";
+      }
       setTimeout(() => overlay.classList.remove("hidden"), 2800);
     }
   }
@@ -818,7 +914,28 @@
 
   // ── Draw ──────────────────────────────────────────────────────────
   function drawSky() {
-    if (currentStage === 2) {
+    if (currentStage === 3) {
+      const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      grad.addColorStop(0, "#08061a"); grad.addColorStop(0.6, "#1a0835"); grad.addColorStop(1, "#0c0828");
+      ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // Moon
+      const moonX = ((240 - cameraX * 0.04 + worldW * 0.04) % (canvas.width + 60)) - 10;
+      ctx.fillStyle = "rgba(220,210,255,0.88)";
+      ctx.beginPath(); ctx.arc(moonX, 75, 34, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "rgba(180,160,220,0.35)";
+      ctx.beginPath(); ctx.arc(moonX, 75, 46, 0, Math.PI * 2); ctx.fill();
+      // Sky stars
+      const skyStars = [[30,40],[140,22],[270,55],[390,32],[520,18],[660,48],[780,28],[900,42],[100,78],[310,12],[620,68],[820,22],[460,52]];
+      skyStars.forEach(([bx, by]) => {
+        const sx = ((bx * 3 - cameraX * 0.06) % (canvas.width + 60)) - 10;
+        const twinkle = 0.4 + Math.sin(time * 0.08 + bx) * 0.35;
+        ctx.globalAlpha = twinkle;
+        ctx.fillStyle = "#e8e0ff";
+        const r = 1.2 + Math.sin(time * 0.1 + by) * 0.7;
+        ctx.beginPath(); ctx.arc(sx, by, r, 0, Math.PI * 2); ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+    } else if (currentStage === 2) {
       const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
       grad.addColorStop(0, "#d8c8ff"); grad.addColorStop(0.5, "#ffd0f0"); grad.addColorStop(1, "#fff0d0");
       ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -840,7 +957,22 @@
   }
 
   function drawHills() {
-    if (currentStage === 2) {
+    if (currentStage === 3) {
+      // Castle tower silhouettes in background
+      const towers = [[100,130,42],[260,170,36],[460,110,48],[640,150,38],[820,120,44],[980,160,36],[1140,130,46]];
+      towers.forEach(([bx, bh, bw]) => {
+        const tx = ((bx * 4 - cameraX * 0.18) % (canvas.width + 220)) - 60;
+        ctx.fillStyle = "#130a22";
+        ctx.fillRect(tx - bw / 2, GROUND_Y - bh, bw, bh);
+        // Battlements
+        for (let bi = 0; bi < 5; bi++) {
+          if (bi % 2 === 0) ctx.fillRect(tx - bw / 2 + bi * (bw / 4), GROUND_Y - bh - 16, bw / 6, 16);
+        }
+        // Glowing window
+        ctx.fillStyle = "rgba(255,160,30,0.65)";
+        ctx.beginPath(); ctx.arc(tx, GROUND_Y - bh * 0.55, 5, 0, Math.PI * 2); ctx.fill();
+      });
+    } else if (currentStage === 2) {
       const cc = ["#ff90c8","#c890ff","#90d8ff","#ffe060"];
       for (let i = -1; i < 9; i++) {
         const tx = i * 300 - (cameraX * 0.28) % 300;
@@ -864,7 +996,28 @@
     platforms.forEach((p) => {
       const sx = p.x - cameraX;
       if (sx + p.w < -50 || sx > canvas.width + 50) return;
-      if (currentStage === 2) {
+
+      if (currentStage === 3) {
+        if (p.type === "ground") {
+          ctx.fillStyle = "#2e2c44"; ctx.fillRect(sx, p.y, p.w, p.h);
+          ctx.fillStyle = "#1e1c32"; ctx.fillRect(sx, p.y, p.w, 14);
+          // Stone blocks
+          ctx.strokeStyle = "#18162a"; ctx.lineWidth = 1.5;
+          for (let i = 0; i < p.w; i += 32) ctx.strokeRect(sx + i + 1, p.y + 16, 30, 22);
+          // Battlements
+          for (let i = 0; i + 16 <= p.w; i += 20) {
+            if (Math.floor(i / 20) % 2 === 0) { ctx.fillStyle = "#1e1c32"; ctx.fillRect(sx + i, p.y - 10, 14, 12); }
+          }
+        } else {
+          ctx.fillStyle = "#3c3a58"; ctx.fillRect(sx, p.y, p.w, p.h);
+          ctx.fillStyle = "#2a2840"; ctx.fillRect(sx, p.y, p.w, 8);
+          ctx.strokeStyle = "#4e4c70"; ctx.lineWidth = 1.5; ctx.strokeRect(sx, p.y, p.w, p.h);
+          for (let i = 0; i < p.w; i += 18) {
+            ctx.strokeStyle = "#22203a"; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(sx + i, p.y); ctx.lineTo(sx + i, p.y + p.h); ctx.stroke();
+          }
+        }
+      } else if (currentStage === 2) {
         if (p.type === "ground") {
           ctx.fillStyle = "#c0a0e8"; ctx.fillRect(sx, p.y, p.w, p.h);
           ctx.fillStyle = "#a080d0"; ctx.fillRect(sx, p.y, p.w, 12);
@@ -898,7 +1051,9 @@
     if (sx < -30 || sx > canvas.width + 30) return;
     const bob = Math.sin(time * 0.08 + s.x) * 3;
     ctx.save(); ctx.translate(sx, s.y + bob);
-    ctx.fillStyle = "#ffe860"; ctx.strokeStyle = "#f0c030"; ctx.lineWidth = 2;
+    ctx.fillStyle = currentStage === 3 ? "#c8b8ff" : "#ffe860";
+    ctx.strokeStyle = currentStage === 3 ? "#9070d0" : "#f0c030";
+    ctx.lineWidth = 2;
     ctx.beginPath();
     for (let i = 0; i < 5; i++) {
       const a = (i * 4 * Math.PI) / 5 - Math.PI / 2; const ia = a + Math.PI / 5;
@@ -964,44 +1119,38 @@
     const blink = boss.hurtTimer > 0 && Math.floor(boss.hurtTimer / 4) % 2 === 0;
     if (blink) return;
 
-    const cx  = screenX + boss.w / 2;
-    const cy  = boss.y + boss.h / 2;
-    const bob = Math.sin(time * 0.05) * 2;
+    const cx    = screenX + boss.w / 2;
+    const cy    = boss.y + boss.h / 2;
+    const bob   = Math.sin(time * 0.05) * 2;
     const angry = boss.hp <= boss.maxHp / 2;
 
     ctx.save();
     ctx.translate(cx, cy + bob);
     if (boss.dir > 0) ctx.scale(-1, 1);
 
-    // Body
     ctx.fillStyle = angry ? "#e8a0c8" : "#d8b8f8";
     ctx.beginPath(); ctx.ellipse(0, 5, 38, 43, 0, 0, Math.PI * 2); ctx.fill();
     ctx.strokeStyle = angry ? "#c060a0" : "#b890d8"; ctx.lineWidth = 3; ctx.stroke();
 
-    // Belt buckle
     ctx.fillStyle = angry ? "#c060a0" : "#a880d0";
     ctx.fillRect(-22, 12, 44, 10);
     ctx.fillStyle = "#ffe840"; ctx.beginPath(); ctx.arc(0, 17, 7, 0, Math.PI * 2); ctx.fill();
 
-    // Crown
     ctx.fillStyle = "#ffe840";
     ctx.beginPath();
     ctx.moveTo(-30, -36); ctx.lineTo(-22, -56); ctx.lineTo(-10, -40);
     ctx.lineTo(0, -62); ctx.lineTo(10, -40); ctx.lineTo(22, -56); ctx.lineTo(30, -36);
     ctx.closePath(); ctx.fill();
     ctx.strokeStyle = "#d0a800"; ctx.lineWidth = 2; ctx.stroke();
-    // Gems
     ctx.fillStyle = "#ff4060"; ctx.beginPath(); ctx.arc(0, -54, 5, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = "#40c8ff"; ctx.beginPath(); ctx.arc(-20, -47, 4, 0, Math.PI * 2); ctx.fill();
     ctx.beginPath(); ctx.arc(20, -47, 4, 0, Math.PI * 2); ctx.fill();
 
-    // Eyes
     ctx.lineCap = "round";
     if (!angry) {
       ctx.strokeStyle = "#7050a0"; ctx.lineWidth = 3;
       ctx.beginPath(); ctx.arc(-14, -10, 9, Math.PI * 0.1, Math.PI * 0.9); ctx.stroke();
       ctx.beginPath(); ctx.arc( 14, -10, 9, Math.PI * 0.1, Math.PI * 0.9); ctx.stroke();
-      // Zzz
       const zf = Math.sin(time * 0.07) * 4;
       ctx.fillStyle = "#b090e0"; ctx.font = "bold 13px sans-serif"; ctx.textAlign = "center";
       ctx.fillText("Zzz", 36, -44 + zf);
@@ -1015,7 +1164,6 @@
       ctx.beginPath(); ctx.moveTo(6, -17); ctx.lineTo(24, -22); ctx.stroke();
     }
 
-    // Mouth
     ctx.strokeStyle = "#a060a0"; ctx.lineWidth = 2.5;
     ctx.beginPath();
     if (!angry) ctx.arc(0, 5, 14, 0.15, Math.PI - 0.15);
@@ -1056,7 +1204,7 @@
   }
 
   function drawGoal() {
-    if (currentStage === 2) return;
+    if (currentStage === 3) return;
     const gx = goal.x - cameraX;
     if (gx > canvas.width + 80 || gx + goal.w < -80) return;
     ctx.fillStyle = "#f0a0c0"; ctx.fillRect(gx + 24, goal.y, 8, goal.h);
@@ -1126,11 +1274,14 @@
     if (goalTimer > 8) {
       const sc = Math.min(1, (goalTimer-8)/30) * pulse;
       ctx.save(); ctx.translate(canvas.width/2, canvas.height/2-40); ctx.scale(sc, sc);
-      const clearText = currentStage === 1 ? "STAGE CLEAR!" : "ALL CLEAR!!";
+      const clearText = currentStage === 3 ? "ALL CLEAR!!" : "STAGE CLEAR!";
+      const subText   = currentStage === 1 ? "ステージ2へ進もう！"
+                      : currentStage === 2 ? "ステージ3へ進もう！"
+                      : "おめでとう、みみぞの！";
       ctx.strokeStyle = "#fff"; ctx.lineWidth = 8; ctx.font = "bold 56px monospace"; ctx.textAlign = "center";
       ctx.strokeText(clearText, 0, 0); ctx.fillStyle = "#ff5080"; ctx.fillText(clearText, 0, 0);
       ctx.font = "bold 24px sans-serif"; ctx.fillStyle = "#e87898";
-      ctx.fillText(currentStage === 1 ? "ステージ2へ進もう！" : "おめでとう、みみぞの！", 0, 44);
+      ctx.fillText(subText, 0, 44);
       ctx.restore();
     }
     if (goalTimer > 25) {
