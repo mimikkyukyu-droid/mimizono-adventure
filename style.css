@@ -154,78 +154,7 @@ body {
   color: #a0b8c8 !important;
 }
 
-.touch-controls {
-  position: absolute;
-  inset: 0;
-  display: none;
-  pointer-events: none;
-  z-index: 3;
-}
-
-.touch-left,
-.touch-right {
-  position: absolute;
-  bottom: 14px;
-  display: flex;
-  gap: 10px;
-  pointer-events: auto;
-}
-
-.touch-left {
-  left: 14px;
-}
-
-.touch-right {
-  right: 14px;
-}
-
-.touch-btn {
-  width: clamp(56px, 14vw, 72px);
-  height: clamp(56px, 14vw, 72px);
-  border: none;
-  border-radius: 50%;
-  font-size: clamp(1.2rem, 4vw, 1.6rem);
-  font-weight: bold;
-  color: #fff;
-  background: linear-gradient(145deg, #ffb8d0, #f080a8);
-  box-shadow:
-    0 6px 0 #d06088,
-    0 8px 16px rgba(200, 100, 140, 0.35);
-  cursor: pointer;
-  user-select: none;
-  transition: transform 0.08s ease, box-shadow 0.08s ease;
-}
-
-.touch-btn:active,
-.touch-btn.pressed {
-  transform: translateY(4px);
-  box-shadow:
-    0 2px 0 #d06088,
-    0 4px 10px rgba(200, 100, 140, 0.3);
-}
-
-.jump-btn {
-  width: clamp(68px, 17vw, 84px);
-  height: clamp(68px, 17vw, 84px);
-  background: linear-gradient(145deg, #a8e0f8, #70c0e8);
-  box-shadow:
-    0 6px 0 #50a0c8,
-    0 8px 16px rgba(100, 170, 220, 0.35);
-  font-size: clamp(1.4rem, 4.5vw, 1.8rem);
-}
-
-.jump-btn:active,
-.jump-btn.pressed {
-  box-shadow:
-    0 2px 0 #50a0c8,
-    0 4px 10px rgba(100, 170, 220, 0.3);
-}
-
 @media (hover: none) and (pointer: coarse) {
-  .touch-controls {
-    display: block;
-  }
-
   .pc-only {
     display: none;
   }

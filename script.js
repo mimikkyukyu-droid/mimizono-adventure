@@ -9,10 +9,6 @@
   const scoreDisplay = document.getElementById("scoreDisplay");
   const livesDisplay = document.getElementById("livesDisplay");
   const stageNameEl = document.getElementById("stageName");
-  const btnLeft = document.getElementById("btnLeft");
-  const btnRight = document.getElementById("btnRight");
-  const btnJump = document.getElementById("btnJump");
-
   const WORLD_W = 3600;
   const GROUND_Y = 460;
   const GRAVITY = 0.55;
@@ -1302,34 +1298,6 @@
     draw();
     requestAnimationFrame(gameLoop);
   }
-
-  function bindTouchButton(btn, key, isJump = false) {
-    const press = (e) => {
-      e.preventDefault();
-      ensureAudio();
-      btn.classList.add("pressed");
-      touch[key] = true;
-      if (isJump) touch.jumpPressed = true;
-      if (state === GameState.TITLE || state === GameState.CLEAR || state === GameState.GAMEOVER) {
-        startGame();
-      }
-    };
-    const release = (e) => {
-      e.preventDefault();
-      btn.classList.remove("pressed");
-      touch[key] = false;
-    };
-    btn.addEventListener("touchstart", press, { passive: false });
-    btn.addEventListener("touchend", release, { passive: false });
-    btn.addEventListener("touchcancel", release, { passive: false });
-    btn.addEventListener("mousedown", press);
-    btn.addEventListener("mouseup", release);
-    btn.addEventListener("mouseleave", release);
-  }
-
-  bindTouchButton(btnLeft, "left");
-  bindTouchButton(btnRight, "right");
-  bindTouchButton(btnJump, "jump", true);
 
   document.addEventListener("keydown", (e) => {
     if (e.code === "ArrowLeft") { keys.left = true; e.preventDefault(); }
