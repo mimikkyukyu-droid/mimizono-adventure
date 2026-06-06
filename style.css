@@ -154,6 +154,39 @@ body {
   color: #a0b8c8 !important;
 }
 
+.touch-controls {
+  position: fixed;
+  left: -9999px;
+  top: -9999px;
+  pointer-events: auto;
+}
+
+.touch-left,
+.touch-right {
+  position: absolute;
+  display: flex;
+  gap: 10px;
+}
+
+.touch-btn {
+  width: 64px;
+  height: 64px;
+  border: none;
+  border-radius: 50%;
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #fff;
+  background: linear-gradient(145deg, #ffb8d0, #f080a8);
+  cursor: pointer;
+  user-select: none;
+}
+
+.jump-btn {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(145deg, #a8e0f8, #70c0e8);
+}
+
 @media (hover: none) and (pointer: coarse) {
   .pc-only {
     display: none;
