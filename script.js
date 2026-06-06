@@ -276,11 +276,31 @@
     { type: "dishes",       x: 3560, y: 0, w: 40, h: 36, speed: 2.1, dir:  1 },
   ];
 
+  // ── Heart item templates ──────────────────────────────────────────
+  // Stage 1: on high platforms, requires jumps, away from goal (x<3400)
+  const STAGE1_HEARTS_TPL = [
+    { x: 1135, y: 265, r: 14 }, // above platform x=1080 y=310 — needs jump to platform + jump
+    { x: 3025, y: 278, r: 14 }, // above platform x=2960 y=320 — late stage, far from goal
+  ];
+
+  // Stage 2: high platforms requiring skill, away from goal (x<3300)
+  const STAGE2_HEARTS_TPL = [
+    { x: 1565, y: 152, r: 14 }, // above very high platform x=1530 y=195 — needs chained jumps
+    { x: 2875, y: 198, r: 14 }, // above platform x=2850 y=245 — mid-air jump needed
+  ];
+
+  // Stage 3: castle platforms, before boss arena (x<3200)
+  const STAGE3_HEARTS_TPL = [
+    { x:  995, y: 192, r: 14 }, // above platform x=960 y=240 — requires jump
+    { x: 2795, y: 168, r: 14 }, // above platform x=2780 y=220 — high up, needs skill
+  ];
+
   // Active data
   let platforms = [];
   let stars     = [];
   let enemies   = [];
   let goal      = {};
+  let hearts    = [];
 
   // ── Audio ─────────────────────────────────────────────────────────
   function ensureAudio() {
@@ -322,6 +342,12 @@
     const f = [523, 659, 784, 1047, 1319, 1047, 1319, 1568];
     f.forEach((v, i) => setTimeout(() => playTone(v, 0.22, "triangle", 0.11), i * 100));
     setTimeout(() => playTone(1047, 0.4, "square", 0.07), 850);
+  }
+
+  function playHeartSound() {
+    playTone(523, 0.08, "sine", 0.12);
+    setTimeout(() => playTone(659, 0.09, "sine", 0.12), 80);
+    setTimeout(() => playTone(784, 0.14, "triangle", 0.10), 170);
   }
 
   function playGameOverSound() {
@@ -439,6 +465,7 @@
     stars     = stg.stars.map(s => ({ ...s, taken: false }));
     enemies   = stg.enemies.map(e => ({ ...e, alive: true, y: 0 }));
     goal      = n === 1 ? { ...STAGE1_GOAL } : n === 2 ? { ...STAGE2_GOAL } : { x: -9999, y: -9999, w: 0, h: 0 };
+    hearts    = (n === 3 ? STAGE3_HEARTS_TPL : n === 2 ? STAGE2_HEARTS_TPL : STAGE1_HEARTS_TPL).map(h => ({ ...h, taken: false }));
     boss      = n === 3 ? createBoss() : null;
     bossProjectiles = [];
     playerAttack.active = false; playerAttack.timer = 0; playerAttack.cooldown = 0;
@@ -845,6 +872,20 @@
     });
   }
 
+  function updateHearts() {
+    hearts.forEach((h) => {
+      if (h.taken) return;
+      const hb = { x: h.x - h.r, y: h.y - h.r, w: h.r * 2, h: h.r * 2 };
+      if (!rectsOverlap(player, hb)) return;
+      if (lives >= 3) return;
+      h.taken = true;
+      lives++;
+      updateHUD();
+      playHeartSound();
+      spawnParticles(h.x, h.y, ["#ff2040","#ff8090","#ffb0b8","#fff","#ffd0d8"], 16, 4);
+    });
+  }
+
   function updateGoal() {
     if (goalReached || currentStage === 3) return;
     if (rectsOverlap(player, goal)) {
@@ -893,7 +934,7 @@
     if (state === GameState.PLAYING) {
       handleInput(); resolvePlatformCollision(); updateEnemies();
       updateStars(); updateEnemyCollisions(); updatePlayerAttack();
-      updateBoss(); updateBossProjectiles(); updateGoal();
+      updateBoss(); updateBossProjectiles(); updateGoal(); updateHearts();
       updateCamera(); updateAnimation();
     }
     if (state === GameState.CLEAR) {
@@ -1211,6 +1252,40 @@
     ctx.globalAlpha = 1;
   }
 
+  function drawHearts() {
+    hearts.forEach((h) => {
+      if (h.taken) return;
+      const sx = h.x - cameraX;
+      if (sx < -40 || sx > canvas.width + 40) return;
+      const bob = Math.sin(time * 0.09 + h.x) * 3;
+      const r   = h.r;
+      ctx.save();
+      ctx.translate(sx, h.y + bob);
+      // Soft glow
+      ctx.fillStyle = "rgba(255, 40, 60, 0.22)";
+      ctx.beginPath(); ctx.arc(0, r * 0.05, r * 1.65, 0, Math.PI * 2); ctx.fill();
+      // Heart shape
+      ctx.fillStyle = "#ff1838";
+      ctx.strokeStyle = "#cc0020";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(0, r * 0.45);
+      ctx.bezierCurveTo(-r * 0.1,  r * 0.12, -r,       -r * 0.48, -r,       -r * 0.08);
+      ctx.bezierCurveTo(-r,        -r * 0.62, -r * 0.5, -r,         0,       -r * 0.52);
+      ctx.bezierCurveTo( r * 0.5,  -r,         r,        -r * 0.62,  r,       -r * 0.08);
+      ctx.bezierCurveTo( r,        -r * 0.48,  r * 0.1,  r * 0.12,  0,        r * 0.45);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      // Shine
+      ctx.fillStyle = "rgba(255,255,255,0.50)";
+      ctx.beginPath();
+      ctx.ellipse(-r * 0.28, -r * 0.38, r * 0.22, r * 0.13, -0.45, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    });
+  }
+
   function drawGoal() {
     if (currentStage === 3) return;
     const gx = goal.x - cameraX;
@@ -1325,7 +1400,7 @@
     if (screenShake > 0.5) ctx.translate((Math.random()-0.5)*screenShake, (Math.random()-0.5)*screenShake);
     drawSky(); drawHills(); drawPlatforms();
     stars.forEach(drawStar);
-    drawGoal(); drawEnemies(); drawBoss(); drawBossProjectiles();
+    drawGoal(); drawHearts(); drawEnemies(); drawBoss(); drawBossProjectiles();
     drawPlayer(); drawAttackEffect();
     drawParticles(); drawClearStars(); drawClearEffect(); drawGameOverEffect();
     ctx.restore();
