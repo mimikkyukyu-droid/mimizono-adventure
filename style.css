@@ -1,0 +1,240 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  touch-action: none;
+  font-family: "Hiragino Maru Gothic ProN", "Hiragino Sans", "Noto Sans JP", sans-serif;
+}
+
+body {
+  background: linear-gradient(160deg, #ffe8f5 0%, #e8f4ff 45%, #fff8e8 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#app {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+
+.game-shell {
+  position: relative;
+  width: min(100vw - 16px, 960px);
+  aspect-ratio: 16 / 9;
+  max-height: calc(100vh - 16px);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow:
+    0 12px 40px rgba(180, 140, 200, 0.35),
+    0 0 0 4px #fff,
+    0 0 0 6px #f5c6e8;
+}
+
+#gameCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #b8e8f8;
+}
+
+.hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 10px 14px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.hud-left,
+.hud-right {
+  min-width: 90px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 2px solid #f5b8d8;
+  border-radius: 14px;
+  padding: 6px 12px;
+  box-shadow: 0 4px 12px rgba(255, 160, 200, 0.25);
+}
+
+.hud-center {
+  flex: 1;
+  text-align: center;
+  padding: 0 8px;
+}
+
+.stage-name {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.82);
+  border: 2px solid #a8d8f0;
+  border-radius: 999px;
+  padding: 6px 18px;
+  font-size: clamp(0.7rem, 2.2vw, 0.95rem);
+  font-weight: bold;
+  color: #6a8aaa;
+  box-shadow: 0 4px 12px rgba(140, 190, 230, 0.25);
+}
+
+.hud-label {
+  display: block;
+  font-size: 0.65rem;
+  color: #c090a8;
+  letter-spacing: 0.05em;
+}
+
+.hud-value {
+  display: block;
+  font-size: clamp(1rem, 3vw, 1.35rem);
+  font-weight: bold;
+  color: #e87898;
+}
+
+.hud-value.lives {
+  color: #f06080;
+  letter-spacing: 2px;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 240, 248, 0.78);
+  z-index: 5;
+  transition: opacity 0.35s ease;
+}
+
+.overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.overlay-card {
+  text-align: center;
+  background: #fff;
+  border: 3px solid #f5b8d8;
+  border-radius: 24px;
+  padding: 28px 36px;
+  box-shadow: 0 10px 30px rgba(220, 150, 190, 0.3);
+  max-width: 90%;
+}
+
+.overlay-card h1 {
+  font-size: clamp(1.4rem, 5vw, 2rem);
+  color: #e87898;
+  margin-bottom: 12px;
+}
+
+.overlay-card p {
+  color: #7a98b0;
+  font-size: clamp(0.85rem, 2.5vw, 1rem);
+  line-height: 1.6;
+}
+
+.overlay-hint {
+  margin-top: 10px;
+  font-size: 0.8rem !important;
+  color: #a0b8c8 !important;
+}
+
+.touch-controls {
+  position: absolute;
+  inset: 0;
+  display: none;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.touch-left,
+.touch-right {
+  position: absolute;
+  bottom: 14px;
+  display: flex;
+  gap: 10px;
+  pointer-events: auto;
+}
+
+.touch-left {
+  left: 14px;
+}
+
+.touch-right {
+  right: 14px;
+}
+
+.touch-btn {
+  width: clamp(56px, 14vw, 72px);
+  height: clamp(56px, 14vw, 72px);
+  border: none;
+  border-radius: 50%;
+  font-size: clamp(1.2rem, 4vw, 1.6rem);
+  font-weight: bold;
+  color: #fff;
+  background: linear-gradient(145deg, #ffb8d0, #f080a8);
+  box-shadow:
+    0 6px 0 #d06088,
+    0 8px 16px rgba(200, 100, 140, 0.35);
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+.touch-btn:active,
+.touch-btn.pressed {
+  transform: translateY(4px);
+  box-shadow:
+    0 2px 0 #d06088,
+    0 4px 10px rgba(200, 100, 140, 0.3);
+}
+
+.jump-btn {
+  width: clamp(68px, 17vw, 84px);
+  height: clamp(68px, 17vw, 84px);
+  background: linear-gradient(145deg, #a8e0f8, #70c0e8);
+  box-shadow:
+    0 6px 0 #50a0c8,
+    0 8px 16px rgba(100, 170, 220, 0.35);
+  font-size: clamp(1.4rem, 4.5vw, 1.8rem);
+}
+
+.jump-btn:active,
+.jump-btn.pressed {
+  box-shadow:
+    0 2px 0 #50a0c8,
+    0 4px 10px rgba(100, 170, 220, 0.3);
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .touch-controls {
+    display: block;
+  }
+
+  .pc-only {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .hud-left,
+  .hud-right {
+    min-width: 70px;
+    padding: 4px 8px;
+  }
+}
