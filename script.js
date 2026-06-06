@@ -409,6 +409,7 @@
       w: 80, h: 90,
       hp: 8, maxHp: 8,
       alive: true,
+      visible: false,
       dir: -1,
       minX: arenaStart + 30,
       maxX: arenaStart + 500,
@@ -418,7 +419,7 @@
   }
 
   function updateBossHUD() {
-    if (!boss || !boss.alive) { bossHud.classList.add("hidden"); return; }
+    if (!boss || !boss.alive || !boss.visible) { bossHud.classList.add("hidden"); return; }
     bossHud.classList.remove("hidden");
     const ratio = boss.hp / boss.maxHp;
     bossHpFill.style.width = `${ratio * 100}%`;
@@ -719,6 +720,13 @@
 
   function updateBoss() {
     if (!boss || !boss.alive) return;
+    if (!boss.visible) {
+      const screenX = boss.x - cameraX;
+      if (screenX < canvas.width && screenX + boss.w > 0) {
+        boss.visible = true;
+        updateBossHUD();
+      }
+    }
     if (boss.hurtTimer > 0) boss.hurtTimer--;
 
     const speed = boss.hp <= boss.maxHp / 2 ? 2.4 : 1.6;
