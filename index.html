@@ -25,11 +25,18 @@
         </div>
       </div>
 
+      <div id="bossHud" class="boss-hud hidden" aria-hidden="true">
+        <span class="boss-hud-name">ねむけ大王</span>
+        <div class="boss-hud-bar">
+          <div id="bossHpFill" class="boss-hud-fill"></div>
+        </div>
+      </div>
+
       <div id="overlay" class="overlay">
         <div class="overlay-card">
           <h1 id="overlayTitle">みみぞの大冒険</h1>
           <p id="overlayText">スペースキーまたはタップでスタート</p>
-          <p class="overlay-hint pc-only">← → 移動　スペース ジャンプ</p>
+          <p class="overlay-hint pc-only">← → 移動　スペース ジャンプ　Z 攻撃</p>
         </div>
       </div>
 
@@ -41,6 +48,7 @@
         <button type="button" id="btnRight" class="touch-btn" aria-label="右へ移動">▶</button>
       </div>
       <div class="touch-right">
+        <button type="button" id="btnAttack" class="touch-btn attack-btn" aria-label="攻撃">攻</button>
         <button type="button" id="btnJump" class="touch-btn jump-btn" aria-label="ジャンプ">★</button>
       </div>
     </div>
